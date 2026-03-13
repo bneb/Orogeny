@@ -6,6 +6,8 @@
 #include "GameFramework/GameModeBase.h"
 #include "OrogenyGameModeBase.generated.h"
 
+class UOrogenyDifficultyPreset;
+
 /**
  * EOrogenyGameState
  *
@@ -55,6 +57,15 @@ public:
 
 	static constexpr float DEFAULT_SURVIVAL_TIME = 900.0f;
 	static constexpr float DEFAULT_MAX_EXPOSURE = 10.0f;
+	static constexpr float DEFAULT_TARGET_CENTURIES = 10.0f;
+
+	// -----------------------------------------------------------------------
+	// Difficulty Preset (Sprint 15)
+	// -----------------------------------------------------------------------
+
+	/** Active difficulty preset — assign a Data Asset in the Editor */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orogeny|Difficulty")
+	TObjectPtr<UOrogenyDifficultyPreset> ActiveDifficulty;
 
 	// -----------------------------------------------------------------------
 	// Game State Properties
@@ -79,6 +90,26 @@ public:
 	/** Current accumulated storm exposure (seconds) */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Orogeny|GameState")
 	float CurrentStormExposure = 0.0f;
+
+	// -----------------------------------------------------------------------
+	// Sprint 5: Deep Time Game State — Centuries + Ecosystem Health
+	// -----------------------------------------------------------------------
+
+	/** Centuries the player must endure to win (default 10 = 1,000 years) */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orogeny|GameState")
+	float TargetSurvivalCenturies = DEFAULT_TARGET_CENTURIES;
+
+	/** Ecosystem health at or below which the Mountain loses */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orogeny|GameState")
+	float CriticalHealthThreshold = 0.0f;
+
+	/** Current century count (read from DeepTimeSubsystem) */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Orogeny|GameState")
+	float CurrentCenturies = 0.0f;
+
+	/** Current ecosystem health (read from EcosystemArmorComponent) */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Orogeny|GameState")
+	float CurrentEcosystemHealth = 0.0f;
 
 	// -----------------------------------------------------------------------
 	// Pure Math — State Logic (TDD-friendly)
@@ -115,6 +146,22 @@ public:
 	static EOrogenyGameState EvaluateGameState(
 		float SurvivalTime, float RequiredTime,
 		float Exposure, float MaxExposure);
+
+	/**
+	 * Evaluate game state using Deep Time centuries and Ecosystem health.
+	 * Sprint 5: Replaces the Day 12 timer for the vertical slice.
+	 * PRIORITY: Defeat (health <= critical) ALWAYS overrides Victory.
+	 *
+	 * @param CurrentCenturies    Centuries survived (CurrentDay / 36525).
+	 * @param TargetCenturies     Centuries required for victory.
+	 * @param CurrentHealth       Current ecosystem health [0, 1].
+	 * @param CriticalHealth      Health threshold for defeat.
+	 * @return                    The resulting game state.
+	 */
+	UFUNCTION(BlueprintCallable, BlueprintPure, Category = "Orogeny|GameState")
+	static EOrogenyGameState EvaluateDeepTimeGameState(
+		float InCenturies, float InTargetCenturies,
+		float InHealth, float InCriticalHealth);
 
 protected:
 	virtual void BeginPlay() override;

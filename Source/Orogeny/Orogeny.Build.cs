@@ -19,7 +19,9 @@ public class Orogeny : ModuleRules
 			"GameplayTags",
 			"GameplayTasks",
 			"Niagara",
-			"EngineCameras"
+			"EngineCameras",
+			"ProceduralMeshComponent",
+			"MetasoundEngine"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]

@@ -2,8 +2,12 @@
 
 #include "OrogenyGameModeBase.h"
 #include "Orogeny.h"
+#include "OrogenyDifficultyPreset.h"
+#include "TuningMath.h"
 #include "TitanCharacter.h"
 #include "Supercell_Actor.h"
+#include "DeepTimeSubsystem.h"
+#include "EcosystemArmorComponent.h"
 #include "Components/SphereComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "Kismet/GameplayStatics.h"
@@ -35,6 +39,39 @@ void AOrogenyGameModeBase::BeginPlay()
 	CurrentGameState = EOrogenyGameState::Playing;
 	CurrentSurvivalTime = 0.0f;
 	CurrentStormExposure = 0.0f;
+
+	// -----------------------------------------------------------------------
+	// Sprint 15: Apply Difficulty Preset
+	// -----------------------------------------------------------------------
+	if (ActiveDifficulty)
+	{
+		UE_LOG(LogOrogeny, Log,
+			TEXT("Difficulty Preset: %s (Blight x%.2f, Heal x%.2f, Centuries=%.1f)"),
+			*ActiveDifficulty->PresetName.ToString(),
+			ActiveDifficulty->BlightSpreadMultiplier,
+			ActiveDifficulty->EcosystemHealMultiplier,
+			ActiveDifficulty->TargetSurvivalCenturies);
+
+		// Apply win condition
+		if (FTuningMath::IsEndlessMode(ActiveDifficulty->TargetSurvivalCenturies))
+		{
+			// Endless: set target impossibly high so victory never triggers
+			TargetSurvivalCenturies = TNumericLimits<float>::Max();
+			UE_LOG(LogOrogeny, Log, TEXT("  Mode: ENDLESS (no victory condition)"));
+		}
+		else
+		{
+			TargetSurvivalCenturies = ActiveDifficulty->TargetSurvivalCenturies;
+			UE_LOG(LogOrogeny, Log,
+				TEXT("  Target: Survive %.1f centuries"),
+				TargetSurvivalCenturies);
+		}
+	}
+	else
+	{
+		UE_LOG(LogOrogeny, Warning,
+			TEXT("No Difficulty Preset assigned — using defaults"));
+	}
 
 	UE_LOG(LogOrogeny, Log,
 		TEXT("Game Loop started. RequiredSurvival=%.0fs, MaxExposure=%.0fs"),
@@ -83,6 +120,33 @@ EOrogenyGameState AOrogenyGameModeBase::EvaluateGameState(
 	}
 
 	if (SurvivalTime >= RequiredTime)
+	{
+		return EOrogenyGameState::Victory;
+	}
+
+	return EOrogenyGameState::Playing;
+}
+
+// ============================================================================
+// State Evaluation — Deep Time (Sprint 5)
+// ============================================================================
+// Priority order:
+//   1. Defeat (health <= critical) — the Blight strips the Mountain bare
+//   2. Victory (centuries >= target) — the Mountain has endured
+//   3. Playing (neither condition met)
+// ============================================================================
+
+EOrogenyGameState AOrogenyGameModeBase::EvaluateDeepTimeGameState(
+	float InCenturies, float InTargetCenturies,
+	float InHealth, float InCriticalHealth)
+{
+	// Defeat ALWAYS takes priority — if the Mountain is bare, nature loses
+	if (InHealth <= InCriticalHealth)
+	{
+		return EOrogenyGameState::Defeat;
+	}
+
+	if (InCenturies >= InTargetCenturies)
 	{
 		return EOrogenyGameState::Victory;
 	}
@@ -144,11 +208,40 @@ void AOrogenyGameModeBase::Tick(float DeltaTime)
 		CurrentStormExposure, bIsInsideStorm, DeltaTime, MaxStormExposure);
 
 	// -----------------------------------------------------------------------
-	// Evaluate state transition
+	// Evaluate Day 12 state transition (storm exposure)
 	// -----------------------------------------------------------------------
-	const EOrogenyGameState NewState = EvaluateGameState(
+	EOrogenyGameState NewState = EvaluateGameState(
 		CurrentSurvivalTime, RequiredSurvivalTime,
 		CurrentStormExposure, MaxStormExposure);
+
+	// -----------------------------------------------------------------------
+	// Sprint 5: Evaluate Deep Time state (centuries + ecosystem health)
+	// -----------------------------------------------------------------------
+	UDeepTimeSubsystem* DeepTime = GetWorld()->GetSubsystem<UDeepTimeSubsystem>();
+	if (DeepTime)
+	{
+		CurrentCenturies = static_cast<float>(DeepTime->CurrentDay / 36525.0);
+	}
+
+	if (PlayerPawn)
+	{
+		UEcosystemArmorComponent* Ecosystem = PlayerPawn->FindComponentByClass<UEcosystemArmorComponent>();
+		if (Ecosystem)
+		{
+			CurrentEcosystemHealth = Ecosystem->EcosystemHealth;
+		}
+	}
+
+	const EOrogenyGameState DeepTimeState = EvaluateDeepTimeGameState(
+		CurrentCenturies, TargetSurvivalCenturies,
+		CurrentEcosystemHealth, CriticalHealthThreshold);
+
+	// Deep Time defeat/victory overrides Day 12 if still Playing
+	if (NewState == EOrogenyGameState::Playing && DeepTimeState != EOrogenyGameState::Playing)
+	{
+		NewState = DeepTimeState;
+	}
+	// If Day 12 already triggered defeat, it stands
 
 	if (NewState != CurrentGameState)
 	{

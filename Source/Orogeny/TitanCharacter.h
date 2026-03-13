@@ -11,6 +11,8 @@ class UTectonicTrenchComponent;
 class UTectonicAtmosphereComponent;
 class UOrographicLiftComponent;
 class UTectonicAudioComponent;
+class UEcosystemArmorComponent;
+class UTitanSubductionComponent;
 
 class USpringArmComponent;
 class UCameraComponent;
@@ -95,6 +97,22 @@ public:
 	/** Velocity-to-audio parameter pipeline for MetaSound sub-bass */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Orogeny|Audio", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UTectonicAudioComponent> AudioComponent;
+
+	// -----------------------------------------------------------------------
+	// Ecosystem Armor (Sprint 2)
+	// -----------------------------------------------------------------------
+
+	/** Procedural flora HISM — the Mountain's living health */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Orogeny|Ecosystem", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UEcosystemArmorComponent> EcosystemComponent;
+
+	// -----------------------------------------------------------------------
+	// Subduction (Sprint 4)
+	// -----------------------------------------------------------------------
+
+	/** Z-axis subduction mechanic — sink to crush blight */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Orogeny|Subduction", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UTitanSubductionComponent> SubductionComponent;
 
 	// -----------------------------------------------------------------------
 	// Input (Enhanced Input System)
