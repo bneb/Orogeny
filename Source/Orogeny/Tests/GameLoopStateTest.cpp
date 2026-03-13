@@ -141,3 +141,66 @@ bool FGameLoopPriorityTest::RunTest(const FString& Parameters)
 		static_cast<uint8>(EOrogenyGameState::Defeat));
 	return true;
 }
+
+// ============================================================================
+// Sprint 5: Deep Time State Evaluation — Victory (endured 10 centuries)
+// ============================================================================
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FGameLoopDeepTimeVictoryTest,
+	"Orogeny.GameLoop.DeepTime.Victory",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter
+)
+
+bool FGameLoopDeepTimeVictoryTest::RunTest(const FString& Parameters)
+{
+	// 10 centuries survived, target 10, health at 0.5 (alive), critical 0.0
+	const EOrogenyGameState Result = AOrogenyGameModeBase::EvaluateDeepTimeGameState(
+		10.0f, 10.0f, 0.5f, 0.0f);
+	TestEqual(TEXT("Endured 10 centuries with health > 0: Victory"),
+		static_cast<uint8>(Result),
+		static_cast<uint8>(EOrogenyGameState::Victory));
+	return true;
+}
+
+// ============================================================================
+// Sprint 5: Deep Time State Evaluation — Ecosystem Defeat (health = 0)
+// ============================================================================
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FGameLoopDeepTimeDefeatTest,
+	"Orogeny.GameLoop.DeepTime.EcosystemDefeat",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter
+)
+
+bool FGameLoopDeepTimeDefeatTest::RunTest(const FString& Parameters)
+{
+	// Only 5 centuries survived, health at 0.0 = bare mountain
+	const EOrogenyGameState Result = AOrogenyGameModeBase::EvaluateDeepTimeGameState(
+		5.0f, 10.0f, 0.0f, 0.0f);
+	TestEqual(TEXT("Ecosystem health at 0: Defeat"),
+		static_cast<uint8>(Result),
+		static_cast<uint8>(EOrogenyGameState::Defeat));
+	return true;
+}
+
+// ============================================================================
+// Sprint 5: Deep Time — Priority (Defeat overrides Victory at boundary)
+// ============================================================================
+
+IMPLEMENT_SIMPLE_AUTOMATION_TEST(
+	FGameLoopDeepTimePriorityTest,
+	"Orogeny.GameLoop.DeepTime.DefeatPriority",
+	EAutomationTestFlags::EditorContext | EAutomationTestFlags::EngineFilter
+)
+
+bool FGameLoopDeepTimePriorityTest::RunTest(const FString& Parameters)
+{
+	// 10 centuries AND health = 0 simultaneously → Defeat wins
+	const EOrogenyGameState Result = AOrogenyGameModeBase::EvaluateDeepTimeGameState(
+		10.0f, 10.0f, 0.0f, 0.0f);
+	TestEqual(TEXT("Victory + bare mountain simultaneously: Defeat takes priority"),
+		static_cast<uint8>(Result),
+		static_cast<uint8>(EOrogenyGameState::Defeat));
+	return true;
+}
