@@ -26,6 +26,7 @@ struct FInputActionValue;
  * - Sub-bass footstep audio (Day 10: MetaSounds)
  *
  * Day 1 establishes the skeleton: capsule, spring arm camera, input stubs.
+ * Day 2 adds foot placement IK via UTitanAnimInstance.
  */
 UCLASS(config = Game)
 class OROGENY_API ATitanCharacter : public ACharacter
@@ -82,6 +83,16 @@ public:
 	 */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Orogeny|Animation")
 	bool bIsCommitted = false;
+
+	// -----------------------------------------------------------------------
+	// IK Configuration (Day 2: Foot Placement)
+	// -----------------------------------------------------------------------
+
+	/** Left foot bone name — must match skeleton */
+	static const FName LeftFootBoneName;
+
+	/** Right foot bone name — must match skeleton */
+	static const FName RightFootBoneName;
 
 protected:
 	/** Called for movement input */

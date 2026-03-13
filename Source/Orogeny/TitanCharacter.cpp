@@ -9,6 +9,10 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 
+// Static bone name constants for IK foot placement (Day 2)
+const FName ATitanCharacter::LeftFootBoneName = FName(TEXT("foot_l"));
+const FName ATitanCharacter::RightFootBoneName = FName(TEXT("foot_r"));
+
 ATitanCharacter::ATitanCharacter()
 {
 	PrimaryActorTick.bCanEverTick = true;
