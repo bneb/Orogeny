@@ -52,11 +52,10 @@ void UTitanAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	Speed = OwningCharacter->GetVelocity().Size();
 	bIsFalling = OwningCharacter->GetCharacterMovement()->IsFalling();
 
-	// Sync committed state from character (Day 4 will drive this from montages)
+	// Sync committed state from character via Day 4 getter
 	if (const auto* TitanChar = Cast<class ATitanCharacter>(OwningCharacter))
 	{
-		// bIsCommitted is read directly from the character's property
-		// We'll add the proper cast when TitanCharacter.h includes are resolved
+		bIsCommitted = TitanChar->GetIsCommitted();
 	}
 
 	// -----------------------------------------------------------------------

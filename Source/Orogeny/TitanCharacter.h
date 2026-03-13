@@ -29,6 +29,8 @@ struct FInputActionValue;
  *
  * Day 1 establishes the skeleton: capsule, spring arm camera, input stubs.
  * Day 2 adds foot placement IK via UTitanAnimInstance.
+ * Day 3 replaces default CMC with UTectonicMovementComponent.
+ * Day 4 adds un-cancelable action states via bIsCommitted + AnimNotifyState.
  */
 UCLASS(config = Game)
 class OROGENY_API ATitanCharacter : public ACharacter
@@ -75,16 +77,20 @@ public:
 	TObjectPtr<UInputAction> LookAction;
 
 	// -----------------------------------------------------------------------
-	// Titan State (Day 4: Animation State Machine integration)
+	// Committed Action State (Day 4)
+	// -----------------------------------------------------------------------
+	// When committed, ALL player input (movement + look) is ignored until
+	// the current montage completes. UAnimNotifyState_ActionCommit drives
+	// this from animation montages. Direct C++ access via getter/setter.
 	// -----------------------------------------------------------------------
 
-	/**
-	 * When true, the titan is in an un-cancelable action state.
-	 * All movement and action inputs are ignored until the current
-	 * montage completes. (Day 4 deliverable)
-	 */
-	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Orogeny|Animation")
-	bool bIsCommitted = false;
+	/** Returns true if the Titan is in an un-cancelable action state */
+	UFUNCTION(BlueprintCallable, Category = "Orogeny|State")
+	bool GetIsCommitted() const { return bIsCommitted; }
+
+	/** Sets the committed state. Called by UAnimNotifyState_ActionCommit. */
+	UFUNCTION(BlueprintCallable, Category = "Orogeny|State")
+	void SetIsCommitted(bool bInCommitted);
 
 	// -----------------------------------------------------------------------
 	// IK Configuration (Day 2: Foot Placement)
@@ -97,10 +103,18 @@ public:
 	static const FName RightFootBoneName;
 
 protected:
-	/** Called for movement input */
+	/**
+	 * When true, the titan is in an un-cancelable action state.
+	 * All movement and action inputs are ignored until the montage completes.
+	 * Driven by UAnimNotifyState_ActionCommit placed on animation montages.
+	 */
+	UPROPERTY(BlueprintReadOnly, Category = "Orogeny|State")
+	bool bIsCommitted = false;
+
+	/** Called for movement input — blocked when bIsCommitted */
 	void Move(const FInputActionValue& Value);
 
-	/** Called for looking input */
+	/** Called for looking input — blocked when bIsCommitted */
 	void Look(const FInputActionValue& Value);
 
 public:

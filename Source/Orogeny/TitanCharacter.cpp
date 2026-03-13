@@ -96,11 +96,18 @@ void ATitanCharacter::BeginPlay()
 	}
 }
 
+void ATitanCharacter::SetIsCommitted(bool bInCommitted)
+{
+	bIsCommitted = bInCommitted;
+
+	UE_LOG(LogOrogeny, Log, TEXT("ATitanCharacter::SetIsCommitted(%s)"),
+		bIsCommitted ? TEXT("TRUE — input locked") : TEXT("FALSE — input unlocked"));
+}
+
 void ATitanCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	// Day 3: Root motion blending and velocity tracking
 	// Day 5: Footstep-driven camera shake triggering
 	// Day 7: Velocity-linked Niagara particle spawn rate
 }
@@ -148,6 +155,12 @@ void ATitanCharacter::Move(const FInputActionValue& Value)
 
 void ATitanCharacter::Look(const FInputActionValue& Value)
 {
+	// Day 4: When committed, block ALL input including camera
+	if (bIsCommitted)
+	{
+		return;
+	}
+
 	FVector2D LookAxisVector = Value.Get<FVector2D>();
 
 	if (Controller != nullptr)
