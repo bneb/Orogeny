@@ -1,0 +1,206 @@
+# ============================================================================
+# Orogeny — UE5 Build & Test Pipeline
+# ============================================================================
+# Requires a SELF-HOSTED Windows runner with UE5.3+ installed.
+#
+# Setup instructions:
+#   1. Install GitHub Actions Runner on your Windows machine:
+#      https://docs.github.com/en/actions/hosting-your-own-runners
+#   2. Tag it with labels: self-hosted, Windows, UE5
+#   3. Set the UE5_ROOT environment variable on the runner machine
+#      (e.g., C:\Program Files\Epic Games\UE_5.3)
+#   4. Push to main — this workflow triggers automatically.
+# ============================================================================
+
+name: UE5 Build & Test
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+env:
+  PROJECT_NAME: Orogeny
+  UPROJECT_PATH: ${{ github.workspace }}\Orogeny.uproject
+
+jobs:
+  # --------------------------------------------------------------------------
+  # Job 1: Structural validation (runs on ANY runner, no UE5 needed)
+  # --------------------------------------------------------------------------
+  validate-structure:
+    name: Validate Project Structure
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Verify critical files exist
+        run: |
+          echo "=== Orogeny Project Structure Validation ==="
+          MISSING=0
+          for f in \
+            "Orogeny.uproject" \
+            "Config/DefaultEngine.ini" \
+            "Config/DefaultGame.ini" \
+            "Source/Orogeny.Target.cs" \
+            "Source/OrogenyEditor.Target.cs" \
+            "Source/Orogeny/Orogeny.Build.cs" \
+            "Source/Orogeny/Orogeny.h" \
+            "Source/Orogeny/Orogeny.cpp" \
+            "Source/Orogeny/OrogenyGameModeBase.h" \
+            "Source/Orogeny/OrogenyGameModeBase.cpp" \
+            "Source/Orogeny/TitanCharacter.h" \
+            "Source/Orogeny/TitanCharacter.cpp" \
+            "Source/Orogeny/Tests/RenderingConfigTest.cpp"; do
+            if [ ! -f "$f" ]; then
+              echo "❌ MISSING: $f"
+              MISSING=1
+            else
+              echo "✅ $f"
+            fi
+          done
+          if [ $MISSING -eq 1 ]; then exit 1; fi
+          echo "=== All critical files present ==="
+
+      - name: Verify rendering CVars in DefaultEngine.ini
+        run: |
+          echo "=== CVar Configuration Audit ==="
+          FAIL=0
+          check_cvar() {
+            if grep -q "$1" Config/DefaultEngine.ini; then
+              echo "✅ $1"
+            else
+              echo "❌ MISSING: $1"
+              FAIL=1
+            fi
+          }
+          check_cvar "r.Lumen.HardwareRayTracing=False"
+          check_cvar "r.DynamicGlobalIlluminationMethod=1"
+          check_cvar "r.ReflectionMethod=1"
+          check_cvar "r.VolumetricFog.GridPixelSize=16"
+          check_cvar "r.VolumetricFog.GridSizeZ=64"
+          check_cvar "r.Shadow.Virtual.Enable=1"
+          check_cvar "r.AntiAliasingMethod=4"
+          check_cvar "r.Shadow.MaxResolution=1024"
+          if [ $FAIL -eq 1 ]; then exit 1; fi
+          echo "=== All CVars locked ==="
+
+  # --------------------------------------------------------------------------
+  # Job 2: UE5 Compile (requires self-hosted Windows runner)
+  # --------------------------------------------------------------------------
+  build:
+    name: UE5 Compile (Win64 Development)
+    needs: validate-structure
+    runs-on: [self-hosted, Windows, UE5]
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve UE5 paths
+        shell: pwsh
+        run: |
+          $UE5 = $env:UE5_ROOT
+          if (-not $UE5) {
+            # Fallback: auto-detect common install paths
+            $candidates = @(
+              "C:\Program Files\Epic Games\UE_5.3",
+              "C:\Program Files\Epic Games\UE_5.4",
+              "D:\Epic Games\UE_5.3",
+              "D:\Epic Games\UE_5.4"
+            )
+            foreach ($path in $candidates) {
+              if (Test-Path "$path\Engine\Binaries\Win64\UnrealEditor-Cmd.exe") {
+                $UE5 = $path
+                break
+              }
+            }
+          }
+          if (-not $UE5) {
+            Write-Error "UE5_ROOT not set and UE5 not found in common paths"
+            exit 1
+          }
+          echo "UE5_ENGINE=$UE5" >> $env:GITHUB_ENV
+          echo "UBT=$UE5\Engine\Binaries\DotNET\UnrealBuildTool\UnrealBuildTool.exe" >> $env:GITHUB_ENV
+          echo "EDITOR_CMD=$UE5\Engine\Binaries\Win64\UnrealEditor-Cmd.exe" >> $env:GITHUB_ENV
+          Write-Host "UE5 Root: $UE5"
+
+      - name: Generate project files
+        shell: pwsh
+        run: |
+          & "$env:UBT" -projectfiles -project="$env:UPROJECT_PATH" -game -rocket -progress
+
+      - name: Compile (Development Win64)
+        shell: pwsh
+        run: |
+          & "$env:UBT" OrogenyEditor Win64 Development `
+            -Project="$env:UPROJECT_PATH" `
+            -WaitMutex -FromMsBuild
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Upload build log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-logs
+          path: |
+            Saved/Logs/*.log
+            Intermediate/Build/**/*.log
+
+  # --------------------------------------------------------------------------
+  # Job 3: TDD Automation Tests (headless, no GUI)
+  # --------------------------------------------------------------------------
+  test:
+    name: Run Automation Tests (Headless)
+    needs: build
+    runs-on: [self-hosted, Windows, UE5]
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Resolve UE5 paths
+        shell: pwsh
+        run: |
+          $UE5 = $env:UE5_ROOT
+          if (-not $UE5) {
+            $candidates = @(
+              "C:\Program Files\Epic Games\UE_5.3",
+              "C:\Program Files\Epic Games\UE_5.4",
+              "D:\Epic Games\UE_5.3",
+              "D:\Epic Games\UE_5.4"
+            )
+            foreach ($path in $candidates) {
+              if (Test-Path "$path\Engine\Binaries\Win64\UnrealEditor-Cmd.exe") {
+                $UE5 = $path
+                break
+              }
+            }
+          }
+          echo "EDITOR_CMD=$UE5\Engine\Binaries\Win64\UnrealEditor-Cmd.exe" >> $env:GITHUB_ENV
+
+      - name: Run Orogeny.Config test suite (headless)
+        shell: pwsh
+        run: |
+          & "$env:EDITOR_CMD" "$env:UPROJECT_PATH" `
+            -ExecCmds="Automation RunTests Orogeny.Config; Quit" `
+            -unattended -nopause -buildmachine -nosplash -nullrhi
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Parse test results
+        shell: pwsh
+        if: always()
+        run: |
+          $logDir = "Saved\Logs"
+          if (Test-Path $logDir) {
+            $log = Get-ChildItem $logDir -Filter "*.log" | Sort-Object LastWriteTime -Descending | Select-Object -First 1
+            if ($log) {
+              Write-Host "=== Test Output (last 50 lines) ==="
+              Get-Content $log.FullName -Tail 50
+            }
+          }
+
+      - name: Upload test logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-logs
+          path: Saved/Logs/*.log
