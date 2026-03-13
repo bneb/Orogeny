@@ -18,12 +18,9 @@ set -e
 
 # --- Auto-detect UE5 installation ---
 UE_PATHS=(
-    "/Users/Shared/Epic Games/UE_5.7/Engine/Binaries/Mac/UnrealEditor-Cmd"
-    "/Users/Shared/Epic Games/UE_5.6/Engine/Binaries/Mac/UnrealEditor-Cmd"
-    "/Users/Shared/Epic Games/UE_5.5/Engine/Binaries/Mac/UnrealEditor-Cmd"
-    "$HOME/Library/Application Support/Epic/UnrealEngine/UE_5.7/Engine/Binaries/Mac/UnrealEditor-Cmd"
-    "$HOME/Library/Application Support/Epic/UnrealEngine/UE_5.6/Engine/Binaries/Mac/UnrealEditor-Cmd"
-    "$HOME/Library/Application Support/Epic/UnrealEngine/UE_5.5/Engine/Binaries/Mac/UnrealEditor-Cmd"
+    "/Users/Shared/Epic Games/UE_5.7/Engine/Binaries/Mac/UnrealEditor.app/Contents/MacOS/UnrealEditor"
+    "/Users/Shared/Epic Games/UE_5.6/Engine/Binaries/Mac/UnrealEditor.app/Contents/MacOS/UnrealEditor"
+    "/Users/Shared/Epic Games/UE_5.5/Engine/Binaries/Mac/UnrealEditor.app/Contents/MacOS/UnrealEditor"
 )
 
 UE_CMD=""
