@@ -1,6 +1,6 @@
 {
 	"FileVersion": 3,
-	"EngineAssociation": "5.3",
+	"EngineAssociation": "5.7",
 	"Category": "",
 	"Description": "Orogeny - A physics-driven atmospheric action vignette. Romantic-era landscape painting aesthetic. Target: AMD Radeon 780M iGPU at 60 FPS.",
 	"Modules": [
