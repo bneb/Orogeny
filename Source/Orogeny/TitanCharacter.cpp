@@ -47,21 +47,24 @@ ATitanCharacter::ATitanCharacter(const FObjectInitializer& ObjectInitializer)
 	// constructor. Do NOT override them here — single source of truth.
 
 	// -----------------------------------------------------------------------
-	// Camera Boom — Extreme distance for colossal scale
+	// Camera Boom — Day 5: Extreme distance for colossal scale
+	// -----------------------------------------------------------------------
+	// TargetArmLength = 3500 — massively pulled back, Titan is <15% of frame
+	// SocketOffset.Z = 800 — looking down from the clouds
+	// CameraLagSpeed = 1.5 — very slow follow, simulates heavy drone
+	// CameraRotationLagSpeed = 2.0 — sluggish rotation follow
 	// -----------------------------------------------------------------------
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(RootComponent);
-	CameraBoom->TargetArmLength = 2500.0f;
+	CameraBoom->TargetArmLength = 3500.0f;
 	CameraBoom->bUsePawnControlRotation = true;
 	CameraBoom->bDoCollisionTest = true;
 	CameraBoom->ProbeSize = 24.0f;
-	// Slight lag for cinematic weight
 	CameraBoom->bEnableCameraLag = true;
-	CameraBoom->CameraLagSpeed = 3.0f;
+	CameraBoom->CameraLagSpeed = 1.5f;
 	CameraBoom->bEnableCameraRotationLag = true;
-	CameraBoom->CameraRotationLagSpeed = 4.0f;
-	// Offset upward to frame the titan from below (emphasizes scale)
-	CameraBoom->SocketOffset = FVector(0.0f, 0.0f, 200.0f);
+	CameraBoom->CameraRotationLagSpeed = 2.0f;
+	CameraBoom->SocketOffset = FVector(0.0f, 0.0f, 800.0f);
 
 	// -----------------------------------------------------------------------
 	// Follow Camera
@@ -72,10 +75,10 @@ ATitanCharacter::ATitanCharacter(const FObjectInitializer& ObjectInitializer)
 	// Wide FOV for landscape vistas
 	FollowCamera->FieldOfView = 75.0f;
 
-	UE_LOG(LogOrogeny, Log, TEXT("ATitanCharacter constructed. ArmLength=%.0f, MaxWalkSpeed=%.0f, Braking=%.0f"),
+	UE_LOG(LogOrogeny, Log, TEXT("ATitanCharacter constructed. ArmLength=%.0f, CameraLag=%.1f, SocketOffsetZ=%.0f"),
 		CameraBoom->TargetArmLength,
-		GetCharacterMovement()->MaxWalkSpeed,
-		GetCharacterMovement()->BrakingDecelerationWalking);
+		CameraBoom->CameraLagSpeed,
+		CameraBoom->SocketOffset.Z);
 }
 
 void ATitanCharacter::BeginPlay()
