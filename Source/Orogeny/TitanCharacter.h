@@ -6,6 +6,8 @@
 #include "GameFramework/Character.h"
 #include "TitanCharacter.generated.h"
 
+class UTectonicMovementComponent;
+
 class USpringArmComponent;
 class UCameraComponent;
 class UInputMappingContext;
@@ -34,7 +36,7 @@ class OROGENY_API ATitanCharacter : public ACharacter
 	GENERATED_BODY()
 
 public:
-	ATitanCharacter();
+	ATitanCharacter(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 protected:
 	virtual void BeginPlay() override;

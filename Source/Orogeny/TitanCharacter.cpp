@@ -8,12 +8,24 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "TectonicMovementComponent.h"
 
 // Static bone name constants for IK foot placement (Day 2)
 const FName ATitanCharacter::LeftFootBoneName = FName(TEXT("foot_l"));
 const FName ATitanCharacter::RightFootBoneName = FName(TEXT("foot_r"));
 
-ATitanCharacter::ATitanCharacter()
+// ============================================================================
+// FObjectInitializer Constructor — Injects UTectonicMovementComponent
+// ============================================================================
+// This is the critical pattern that REPLACES the default
+// UCharacterMovementComponent with our custom tectonic version.
+// ACharacter creates its movement component during construction,
+// and SetDefaultSubobjectClass redirects it to our subclass.
+// ============================================================================
+
+ATitanCharacter::ATitanCharacter(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer.SetDefaultSubobjectClass<UTectonicMovementComponent>(
+		ACharacter::CharacterMovementComponentName))
 {
 	PrimaryActorTick.bCanEverTick = true;
 
@@ -28,15 +40,11 @@ ATitanCharacter::ATitanCharacter()
 	bUseControllerRotationRoll = false;
 
 	// -----------------------------------------------------------------------
-	// Character Movement — Tectonic defaults (Day 3 will subclass this)
+	// Character Movement — ALL defaults now owned by UTectonicMovementComponent
 	// -----------------------------------------------------------------------
-	GetCharacterMovement()->bOrientRotationToMovement = true;
-	GetCharacterMovement()->RotationRate = FRotator(0.0f, 200.0f, 0.0f);
-	// Day 3 overrides: MaxWalkSpeed=150, BrakingDecelerationWalking=10
-	// For now, use reduced defaults to hint at the intended heavy feel
-	GetCharacterMovement()->MaxWalkSpeed = 150.0f;
-	GetCharacterMovement()->BrakingDecelerationWalking = 10.0f;
-	GetCharacterMovement()->GravityScale = 1.5f;
+	// MaxWalkSpeed, MaxAcceleration, BrakingDeceleration, Mass, RotationRate,
+	// bOrientRotationToMovement, GravityScale are ALL set in the component's
+	// constructor. Do NOT override them here — single source of truth.
 
 	// -----------------------------------------------------------------------
 	// Camera Boom — Extreme distance for colossal scale
