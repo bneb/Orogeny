@@ -1,0 +1,65 @@
+# ============================================================================
+# Unreal Engine 5 — .gitignore
+# ============================================================================
+
+# Compiled / Generated
+Binaries/
+Intermediate/
+DerivedDataCache/
+Build/
+
+# Content that the Editor generates
+Saved/
+*.VC.db
+*.opensdf
+*.opendb
+*.sdf
+*.suo
+*.sln
+*.xcworkspace
+*.xcodeproj
+
+# User-specific Editor config (each dev gets their own)
+Config/UserEngine.ini
+Config/UserEditor.ini
+Config/UserGame.ini
+Config/UserInput.ini
+Config/UserLayoutConfiguration.ini
+
+# Visual Studio / Rider / IDE
+.vs/
+.vscode/
+.idea/
+*.rsuser
+*.user
+*.userosscache
+*.dbmdl
+
+# macOS
+.DS_Store
+*.swp
+*~
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Precompiled Assets (download or build locally)
+Content/StarterContent/
+Content/Megascans/
+
+# Packaged builds
+Releases/
+PackagedOutput/
+*.pak
+*.utoc
+*.ucas
+
+# Crash reports
+CrashReportClient/
+
+# Auto-generated project files (regenerated from .uproject)
+*.sln
+*.vcxproj
+*.vcxproj.filters
+*.vcxproj.user
