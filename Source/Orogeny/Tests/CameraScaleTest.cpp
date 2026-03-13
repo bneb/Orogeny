@@ -24,8 +24,9 @@
 #include "TectonicFootstepShake.h"
 #include "AnimNotify_TectonicStep.h"
 #include "GameFramework/SpringArmComponent.h"
+#include "Camera/CameraComponent.h"
 #include "Camera/CameraShakeBase.h"
-#include "PerlinNoiseCameraShakePattern.h"
+#include "Shakes/PerlinNoiseCameraShakePattern.h"
 
 // ============================================================================
 // Test 1: Camera Scale Configuration
@@ -52,13 +53,13 @@ bool FCameraScaleConfigTest::RunTest(const FString& Parameters)
 
 	// Socket offset — elevated viewpoint, looking down
 	TestEqual(TEXT("SocketOffset.Z must be 800"),
-		Boom->SocketOffset.Z, 800.0f);
+		Boom->SocketOffset.Z, 800.0);
 
 	TestEqual(TEXT("SocketOffset.X must be 0"),
-		Boom->SocketOffset.X, 0.0f);
+		Boom->SocketOffset.X, 0.0);
 
 	TestEqual(TEXT("SocketOffset.Y must be 0"),
-		Boom->SocketOffset.Y, 0.0f);
+		Boom->SocketOffset.Y, 0.0);
 
 	// Camera lag — slow, heavy drone feel
 	TestTrue(TEXT("bEnableCameraLag must be true"),

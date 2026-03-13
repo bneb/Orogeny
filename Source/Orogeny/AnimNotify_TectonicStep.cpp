@@ -7,6 +7,8 @@
 #include "Components/SkeletalMeshComponent.h"
 #include "GameFramework/PlayerController.h"
 #include "GameFramework/ForceFeedbackEffect.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundBase.h"
 
 // ============================================================================
 // Construction
@@ -67,17 +69,26 @@ void UAnimNotify_TectonicStep::Notify(
 	// -----------------------------------------------------------------------
 	if (PC && ForceFeedbackEffect)
 	{
-		PC->ClientPlayForceFeedback(ForceFeedbackEffect, false, false, NAME_None);
+		PC->ClientPlayForceFeedback(ForceFeedbackEffect);
 
 		UE_LOG(LogOrogeny, Verbose, TEXT("TectonicStep: Force feedback fired"));
 	}
 
 	// -----------------------------------------------------------------------
-	// Future hooks (Day 6+):
-	// - Terrain deformation at foot location
-	// - Niagara dust/debris particle burst
-	// - MetaSound sub-bass impact
+	// Footstep Audio — Day 10: Play impact sound at foot location
 	// -----------------------------------------------------------------------
+	if (FootstepSound)
+	{
+		UGameplayStatics::PlaySoundAtLocation(
+			MeshComp->GetWorld(),
+			FootstepSound,
+			MeshComp->GetComponentLocation(),
+			1.0f,  // VolumeMultiplier
+			1.0f   // PitchMultiplier
+		);
+
+		UE_LOG(LogOrogeny, Verbose, TEXT("TectonicStep: Footstep sound played."));
+	}
 }
 
 // ============================================================================

@@ -2,6 +2,7 @@
 
 #include "TitanAnimInstance.h"
 #include "Orogeny.h"
+#include "TitanCharacter.h"
 #include "GameFramework/Character.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/CapsuleComponent.h"

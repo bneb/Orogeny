@@ -30,7 +30,7 @@ class OROGENY_API UTectonicFootstepShake : public UCameraShakeBase
 	GENERATED_BODY()
 
 public:
-	UTectonicFootstepShake();
+	UTectonicFootstepShake(const FObjectInitializer& ObjectInitializer = FObjectInitializer::Get());
 
 	// -----------------------------------------------------------------------
 	// Design Constants — exposed for TDD verification

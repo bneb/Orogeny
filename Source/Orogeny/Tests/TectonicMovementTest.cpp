@@ -57,7 +57,7 @@ bool FTectonicDefaultsTest::RunTest(const FString& Parameters)
 		MoveComp->Mass, 100000.0f);
 
 	TestEqual(TEXT("RotationRate.Yaw must be 60"),
-		MoveComp->RotationRate.Yaw, 60.0f);
+		MoveComp->RotationRate.Yaw, 60.0);
 
 	TestTrue(TEXT("bOrientRotationToMovement must be true"),
 		MoveComp->bOrientRotationToMovement);

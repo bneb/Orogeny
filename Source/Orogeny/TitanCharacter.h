@@ -7,6 +7,10 @@
 #include "TitanCharacter.generated.h"
 
 class UTectonicMovementComponent;
+class UTectonicTrenchComponent;
+class UTectonicAtmosphereComponent;
+class UOrographicLiftComponent;
+class UTectonicAudioComponent;
 
 class USpringArmComponent;
 class UCameraComponent;
@@ -59,6 +63,38 @@ public:
 	/** Follow camera attached to the boom */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Orogeny|Camera", meta = (AllowPrivateAccess = "true"))
 	TObjectPtr<UCameraComponent> FollowCamera;
+
+	// -----------------------------------------------------------------------
+	// Terrain Deformation (Day 6)
+	// -----------------------------------------------------------------------
+
+	/** Persistent R16f render target component for terrain trenching */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Orogeny|Trench", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UTectonicTrenchComponent> TrenchComponent;
+
+	// -----------------------------------------------------------------------
+	// Atmospheric Wake (Day 7)
+	// -----------------------------------------------------------------------
+
+	/** Velocity-scaled atmospheric displacement component */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Orogeny|Atmosphere", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UTectonicAtmosphereComponent> AtmosphereComponent;
+
+	// -----------------------------------------------------------------------
+	// Combat (Day 9)
+	// -----------------------------------------------------------------------
+
+	/** Orographic Lift AOE combat component */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Orogeny|Combat", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UOrographicLiftComponent> LiftComponent;
+
+	// -----------------------------------------------------------------------
+	// Audio (Day 10)
+	// -----------------------------------------------------------------------
+
+	/** Velocity-to-audio parameter pipeline for MetaSound sub-bass */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Orogeny|Audio", meta = (AllowPrivateAccess = "true"))
+	TObjectPtr<UTectonicAudioComponent> AudioComponent;
 
 	// -----------------------------------------------------------------------
 	// Input (Enhanced Input System)

@@ -83,22 +83,22 @@ bool FIKMathFlatGroundTest::RunTest(const FString& Parameters)
 		HipOffset, 0.0f);
 
 	TestEqual(TEXT("Flat ground: Left IK Z offset must be 0"),
-		LeftResult.IKOffset.Z, 0.0f);
+		LeftResult.IKOffset.Z, 0.0);
 
 	TestEqual(TEXT("Flat ground: Right IK Z offset must be 0"),
-		RightResult.IKOffset.Z, 0.0f);
+		RightResult.IKOffset.Z, 0.0);
 
 	TestEqual(TEXT("Flat ground: Left foot pitch must be 0"),
-		LeftResult.FootRotation.Pitch, 0.0f);
+		LeftResult.FootRotation.Pitch, 0.0);
 
 	TestEqual(TEXT("Flat ground: Left foot roll must be 0"),
-		LeftResult.FootRotation.Roll, 0.0f);
+		LeftResult.FootRotation.Roll, 0.0);
 
 	TestEqual(TEXT("Flat ground: Right foot pitch must be 0"),
-		RightResult.FootRotation.Pitch, 0.0f);
+		RightResult.FootRotation.Pitch, 0.0);
 
 	TestEqual(TEXT("Flat ground: Right foot roll must be 0"),
-		RightResult.FootRotation.Roll, 0.0f);
+		RightResult.FootRotation.Roll, 0.0);
 
 	return true;
 }
@@ -135,11 +135,11 @@ bool FIKMathUnevenGroundTest::RunTest(const FString& Parameters)
 
 	// Left foot IK: delta(+30) - hipOffset(-20) = +50 (push up 50 units)
 	TestEqual(TEXT("Uneven ground: Left IK Z must be +50"),
-		LeftResult.IKOffset.Z, 50.0f);
+		LeftResult.IKOffset.Z, 50.0);
 
 	// Right foot IK: delta(-20) - hipOffset(-20) = 0 (at lowered hip level)
 	TestEqual(TEXT("Uneven ground: Right IK Z must be 0"),
-		RightResult.IKOffset.Z, 0.0f);
+		RightResult.IKOffset.Z, 0.0);
 
 	return true;
 }
@@ -229,13 +229,13 @@ bool FIKMathNoGroundContactTest::RunTest(const FString& Parameters)
 
 	// Right foot rotation should be zero (no surface to align to)
 	TestEqual(TEXT("No contact: Right rotation pitch must be 0"),
-		RightResult.FootRotation.Pitch, 0.0f);
+		RightResult.FootRotation.Pitch, 0.0);
 	TestEqual(TEXT("No contact: Right rotation roll must be 0"),
-		RightResult.FootRotation.Roll, 0.0f);
+		RightResult.FootRotation.Roll, 0.0);
 
 	// Left foot should still have valid IK
 	TestEqual(TEXT("No contact: Left IK Z must be +10"),
-		LeftResult.IKOffset.Z, 10.0f);
+		LeftResult.IKOffset.Z, 10.0);
 
 	return true;
 }

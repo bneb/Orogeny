@@ -2,13 +2,14 @@
 
 #include "TectonicFootstepShake.h"
 #include "Orogeny.h"
-#include "PerlinNoiseCameraShakePattern.h"
+#include "Shakes/PerlinNoiseCameraShakePattern.h"
 
 // ============================================================================
 // Constructor — Configure the Perlin Noise Camera Shake
 // ============================================================================
 
-UTectonicFootstepShake::UTectonicFootstepShake()
+UTectonicFootstepShake::UTectonicFootstepShake(const FObjectInitializer& ObjectInitializer)
+	: Super(ObjectInitializer)
 {
 	// Create the Perlin noise pattern as the root shake pattern
 	UPerlinNoiseCameraShakePattern* NoisePattern = CreateDefaultSubobject<UPerlinNoiseCameraShakePattern>(TEXT("TectonicNoisePattern"));

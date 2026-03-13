@@ -18,7 +18,8 @@ public class Orogeny : ModuleRules
 			"GameplayAbilities",
 			"GameplayTags",
 			"GameplayTasks",
-			"Niagara"
+			"Niagara",
+			"EngineCameras"
 		});
 
 		PrivateDependencyModuleNames.AddRange(new string[]
@@ -30,9 +31,10 @@ public class Orogeny : ModuleRules
 			"ControlRig"
 		});
 
-		// Include the Tests subdirectory for automation tests
+		// Include the module root so Tests/ can resolve sibling headers
 		PublicIncludePaths.AddRange(new string[]
 		{
+			"Orogeny",
 			"Orogeny/Tests"
 		});
 	}

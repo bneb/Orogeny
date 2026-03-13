@@ -9,6 +9,10 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "TectonicMovementComponent.h"
+#include "TectonicTrenchComponent.h"
+#include "TectonicAtmosphereComponent.h"
+#include "OrographicLiftComponent.h"
+#include "TectonicAudioComponent.h"
 
 // Static bone name constants for IK foot placement (Day 2)
 const FName ATitanCharacter::LeftFootBoneName = FName(TEXT("foot_l"));
@@ -79,6 +83,27 @@ ATitanCharacter::ATitanCharacter(const FObjectInitializer& ObjectInitializer)
 		CameraBoom->TargetArmLength,
 		CameraBoom->CameraLagSpeed,
 		CameraBoom->SocketOffset.Z);
+
+	// -----------------------------------------------------------------------
+	// Terrain Deformation — Day 6: Trench Mask RT
+	// -----------------------------------------------------------------------
+	TrenchComponent = CreateDefaultSubobject<UTectonicTrenchComponent>(TEXT("TrenchComponent"));
+
+	// -----------------------------------------------------------------------
+	// Atmospheric Wake — Day 7: Velocity-scaled fog displacement + Niagara
+	// -----------------------------------------------------------------------
+	AtmosphereComponent = CreateDefaultSubobject<UTectonicAtmosphereComponent>(TEXT("AtmosphereComponent"));
+	AtmosphereComponent->SetupAttachment(RootComponent);
+
+	// -----------------------------------------------------------------------
+	// Combat — Day 9: Orographic Lift AOE
+	// -----------------------------------------------------------------------
+	LiftComponent = CreateDefaultSubobject<UOrographicLiftComponent>(TEXT("LiftComponent"));
+
+	// -----------------------------------------------------------------------
+	// Audio — Day 10: Velocity-to-MetaSound data pipeline
+	// -----------------------------------------------------------------------
+	AudioComponent = CreateDefaultSubobject<UTectonicAudioComponent>(TEXT("AudioComponent"));
 }
 
 void ATitanCharacter::BeginPlay()

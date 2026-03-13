@@ -7,6 +7,7 @@
 #include "AnimNotify_TectonicStep.generated.h"
 
 class UForceFeedbackEffect;
+class USoundBase;
 
 /**
  * UAnimNotify_TectonicStep
@@ -67,4 +68,12 @@ public:
 	 */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orogeny|Camera", meta = (ClampMin = "0.0", ClampMax = "5.0"))
 	float ShakeScale = 1.0f;
+
+	/**
+	 * Sound to play on each footstep impact (e.g., MetaSound sub-bass thud).
+	 * Played at the mesh component's world location via PlaySoundAtLocation.
+	 * If null, no footstep audio fires (camera shake + haptics still work).
+	 */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Orogeny|Audio")
+	TObjectPtr<USoundBase> FootstepSound;
 };

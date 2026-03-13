@@ -8,8 +8,9 @@ public class OrogenyEditorTarget : TargetRules
 	public OrogenyEditorTarget(TargetInfo Target) : base(Target)
 	{
 		Type = TargetType.Editor;
-		DefaultBuildSettings = BuildSettingsVersion.V4;
+		DefaultBuildSettings = BuildSettingsVersion.V5;
 		IncludeOrderVersion = EngineIncludeOrderVersion.Latest;
 		ExtraModuleNames.Add("Orogeny");
+		bOverrideBuildEnvironment = true;
 	}
 }

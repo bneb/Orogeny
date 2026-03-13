@@ -29,6 +29,10 @@
 		{
 			"Name": "Metasound",
 			"Enabled": true
+		},
+		{
+			"Name": "EngineCameras",
+			"Enabled": true
 		}
 	],
 	"TargetPlatforms": [
