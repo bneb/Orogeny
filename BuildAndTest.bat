@@ -2,9 +2,8 @@
 REM ============================================================================
 REM Orogeny — Local Build & Test Script
 REM ============================================================================
-REM Prerequisites:
-REM   - Unreal Engine 5.3+ installed
-REM   - Set UE5_ROOT below OR as an environment variable
+REM Full compile + run ALL TDD tests. Works on any Windows machine with UE5.5+.
+REM Auto-detects common install paths. Override with: set UE5_ROOT=...
 REM ============================================================================
 
 setlocal EnableDelayedExpansion
@@ -12,12 +11,15 @@ setlocal EnableDelayedExpansion
 REM --- Auto-detect UE5 if UE5_ROOT is not set ---
 if not defined UE5_ROOT (
     for %%D in (
-        "C:\Program Files\Epic Games\UE_5.3"
-        "C:\Program Files\Epic Games\UE_5.4"
+        "C:\Program Files\Epic Games\UE_5.7"
+        "C:\Program Files\Epic Games\UE_5.6"
         "C:\Program Files\Epic Games\UE_5.5"
-        "D:\Epic Games\UE_5.3"
-        "D:\Epic Games\UE_5.4"
+        "D:\Epic Games\UE_5.7"
+        "D:\Epic Games\UE_5.6"
         "D:\Epic Games\UE_5.5"
+        "E:\Epic Games\UE_5.7"
+        "E:\Epic Games\UE_5.6"
+        "E:\Epic Games\UE_5.5"
     ) do (
         if exist "%%~D\Engine\Binaries\Win64\UnrealEditor-Cmd.exe" (
             set "UE5_ROOT=%%~D"
@@ -25,7 +27,7 @@ if not defined UE5_ROOT (
         )
     )
     echo [ERROR] Could not find UE5. Set UE5_ROOT environment variable.
-    echo         Example: set UE5_ROOT=C:\Program Files\Epic Games\UE_5.3
+    echo         Example: set UE5_ROOT=C:\Program Files\Epic Games\UE_5.5
     exit /b 1
 )
 :found
@@ -36,7 +38,7 @@ set "PROJECT=%~dp0Orogeny.uproject"
 
 echo ============================================================================
 echo  OROGENY BUILD ^& TEST
-echo  UE5: %UE5_ROOT%
+echo  Engine:  %UE5_ROOT%
 echo  Project: %PROJECT%
 echo ============================================================================
 echo.
@@ -61,9 +63,9 @@ if %ERRORLEVEL% neq 0 (
 echo [PASS] Compilation succeeded.
 echo.
 
-REM --- Step 3: Run TDD Tests ---
-echo [3/3] Running automation tests (headless)...
-"%EDITOR_CMD%" "%PROJECT%" -ExecCmds="Automation RunTests Orogeny.Config; Quit" -unattended -nopause -buildmachine -nosplash -nullrhi
+REM --- Step 3: Run ALL TDD Tests ---
+echo [3/3] Running ALL automation tests (headless)...
+"%EDITOR_CMD%" "%PROJECT%" -ExecCmds="Automation RunTests Orogeny; Quit" -unattended -nopause -buildmachine -nosplash -nullrhi
 if %ERRORLEVEL% neq 0 (
     echo [FAIL] Automation tests failed. Check Saved\Logs for details.
     exit /b 1
