@@ -62,7 +62,7 @@ public:
 	// -----------------------------------------------------------------------
 
 	/** Real seconds per in-game day when the Titan is stationary */
-	static constexpr float BASE_DAY_DURATION = 60.0f;
+	static constexpr float BASE_DAY_DURATION = 600.0f;
 
 	/** Real seconds per in-game century at maximum velocity */
 	static constexpr float MAX_CENTURY_DURATION = 60.0f;

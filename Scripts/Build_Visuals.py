@@ -124,7 +124,14 @@ class OrogenyVisualBuilder:
         # Enable volumetric fog for atmospheric depth
         fog_component = fog.get_component_by_class(unreal.ExponentialHeightFogComponent)
         if fog_component:
-            fog_component.set_editor_property("volumetric_fog", True)
+            # UE 5.7 renamed 'volumetric_fog' — try both names
+            try:
+                fog_component.set_editor_property("b_enable_volumetric_fog", True)
+            except Exception:
+                try:
+                    fog_component.set_editor_property("volumetric_fog", True)
+                except Exception:
+                    self._warn("Could not enable volumetric fog (property name changed)")
             fog_component.set_editor_property("fog_density", 0.02)
             self._log("Configured HeightFog: Volumetric=True, Density=0.02")
 

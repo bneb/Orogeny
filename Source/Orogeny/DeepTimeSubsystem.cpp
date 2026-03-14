@@ -85,7 +85,7 @@ void UDeepTimeSubsystem::Initialize(FSubsystemCollectionBase& Collection)
 	CurrentDay = 0.0;
 	CurrentTimeScale = 1.0f;
 	CurrentVelocityAlpha = 0.0f;
-	CurrentSunAngle = 0.0f;
+	CurrentSunAngle = 180.0f; // Start at noon
 	LastBroadcastYear = -1;
 	LastBroadcastCentury = -1;
 	SunLightActor = nullptr;
@@ -129,12 +129,14 @@ void UDeepTimeSubsystem::Tick(float DeltaTime)
 	APawn* PlayerPawn = UGameplayStatics::GetPlayerPawn(World, 0);
 	if (PlayerPawn)
 	{
-		const float Speed = PlayerPawn->GetVelocity().Size();
+		// Use horizontal velocity only — falling should NOT compress time
+		const FVector Vel = PlayerPawn->GetVelocity();
+		const float HorizontalSpeed = FVector(Vel.X, Vel.Y, 0.0f).Size();
 		const ACharacter* AsCharacter = Cast<ACharacter>(PlayerPawn);
 		const float MaxSpeed = (AsCharacter && AsCharacter->GetCharacterMovement())
 			? AsCharacter->GetCharacterMovement()->MaxWalkSpeed
 			: 150.0f;
-		CurrentVelocityAlpha = FMath::Clamp(Speed / MaxSpeed, 0.0f, 1.0f);
+		CurrentVelocityAlpha = FMath::Clamp(HorizontalSpeed / MaxSpeed, 0.0f, 1.0f);
 	}
 
 	// -----------------------------------------------------------------------
